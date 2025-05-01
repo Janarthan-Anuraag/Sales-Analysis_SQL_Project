@@ -18,6 +18,48 @@ This database has data related to customers, sales, products. I analyzed custome
 2. **Cohort Analysis** : How do diferent customer groups generate revenue?
 3. **Retention Analysis**: Which customers haven't purchased recently?
 
+**Creating View: customer_analysis**
+
+First we create a view which can be used. A view is a virtual table that allows us to use results of a stored query. 
+
+```sql
+CREATE OR REPLACE VIEW public.cohort_analysis
+AS WITH customer_revenue AS (
+         SELECT s.customerkey,
+            s.orderdate,
+            sum(s.quantity::double precision * s.netprice / s.exchangerate) AS total_net_revenue,
+            count(s.orderkey) AS num_orders,
+            c.countryfull,
+            c.age,
+            c.givenname,
+            c.surname
+           FROM sales s
+             LEFT JOIN customer c ON c.customerkey = s.customerkey
+          GROUP BY s.customerkey, s.orderdate, c.countryfull, c.age, c.givenname, c.surname
+        )
+ SELECT customerkey,
+    orderdate,
+    total_net_revenue,
+    num_orders,
+    countryfull,
+    age,
+    concat(TRIM(BOTH FROM givenname), ' ', TRIM(BOTH FROM surname)) AS cleaned_name,
+    min(orderdate) OVER (PARTITION BY customerkey) AS first_purchase_date,
+    EXTRACT(year FROM min(orderdate) OVER (PARTITION BY customerkey)) AS cohort_year
+   FROM customer_revenue cr;
+   ```
+I wanted to create a clean and useful view of each customer’s purchase history so I could analyze how customers behave over time.
+
+- First, I calculated how much revenue each customer generated on each purchase date, along with the number of orders they made, by joining the sales and customer tables.
+
+- I also included some customer info like their country, age, and full name (combined and cleaned up).
+
+- Then, I figured out when each customer made their first purchase using a window function. This helps to group customers into cohorts (like all customers who joined in 2021, 2022, etc.).
+
+- Finally, I added a "cohort year" column by extracting the year from their first purchase date.
+
+The whole idea was to prepare a ready-to-use dataset that could help me do cohort analysis, like tracking how different groups of customers perform over time and assign cohort year in front of each customers.
+
 ## Analysis Approach
 ### 1. Customer Segmentation Analysis:
 
