@@ -61,7 +61,7 @@ I wrote this code to break down our customers based on how much revenue they’v
 
 📊 Key Findings:
 
-![table1](image-1.png)
+![table1](/images/table1.png)
 
 💡 Business Insights:
 
