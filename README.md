@@ -20,7 +20,7 @@ This database has data related to customers, sales, products. I analyzed custome
 
 **Creating View: customer_analysis**
 
-First we create a view which can be used. A view is a virtual table that allows us to use results of a stored query. 
+First I created a view which can be used when needed. (A view is a virtual table that allows us to use results of a stored query.) 
 
 ```sql
 CREATE OR REPLACE VIEW public.cohort_analysis
